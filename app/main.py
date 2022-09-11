@@ -7,7 +7,7 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 import time 
 from sqlalchemy.orm import Session
-from . import models 
+from . import models, schemas
 from .database import engine, get_db
 
 app = FastAPI()
@@ -25,7 +25,7 @@ models.Base.metadata.create_all(bind=engine)
     finally: 
         db.close()"""
         # Moved to database.py
-
+"""
 # Define what a Post should look like
 class Post(BaseModel):
     # User pydantic to see what type of data we want 
@@ -36,7 +36,7 @@ class Post(BaseModel):
     published: bool = True
     # Allows user to add nothing 
     id = int 
-
+"""
 # Code to connect to database 
 while True:
     try:
@@ -88,11 +88,11 @@ def get_posts(db: Session = Depends(get_db)):
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
 # defining dictionary to be sent
-def create_posts(post:Post, db: Session = Depends(get_db)):  
+def create_posts(post:schemas.PostCreate, db: Session = Depends(get_db)):  
     # SQL connection to creating posts 
     # %s prevent SQL injections, they are just placeholders, values are put in after 
     #cursor.execute("""INSERT INTO posts (title, content, published) VALUES (%s, %s, %s) RETURNING * 
-                   #""", (post.title, post.content, post.published))
+                  # """, (post.title, post.content, post.published))
     #Need to make different variable for above
     #new_post = cursor.fetchone()
     # Need to commit to table 
@@ -131,36 +131,53 @@ def get_post(id: int, db: Session = Depends(get_db)):
     return {"post_detail": post}
 
 @app.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_post(id: int ):
+def delete_post(id: int, db:Session = Depends(get_db)):
     # logic for deleting post 
     # find the index in the array that has required ID
     # my_posts.pop(index)
-    cursor.execute(""" DELETE FROM posts WHERE id = %s RETURNING *""", (str(id),))
-    deleted_post = cursor.fetchone()
-    conn.commit()
+    #cursor.execute(""" DELETE FROM posts WHERE id = %s RETURNING *""", (str(id),))
+   #deleted_post = cursor.fetchone()
+    #conn.commit()
     
-    if deleted_post == None:
+    # Grabs query 
+    post = db.query(models.Post).filter(models.Post.id == id)
+    
+    if post.first() == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f'Post with id {id} does not exist')
+    
+    #deletes post 
+    post.delete(synchronize_session=False)
+    db.commit()
     
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @app.put("/posts/{id}")
-def update_post(id: int, post: Post):
-    cursor.execute(""" UPDATE posts SET title = %s, content = %s, published = %s WHERE id = %s RETURNING *""",
-                   (post.title, post.content, post.published, str(id),))
+def update_post(id: int, updated_post: schemas.PostCreate, db:Session = Depends(get_db)):
+ #   cursor.execute(""" UPDATE posts SET title = %s, content = %s, published = %s WHERE id = %s RETURNING *""",
+  #                 (post.title, post.content, post.published, str(id),))
     
-    updated_post = cursor.fetchone()
-    conn.commit()
-    print(post)
+ #   updated_post = cursor.fetchone()
+ #   conn.commit()
+ #   print(post)
     
     # wants to update, this checks to see if id exists
     #index = find_index_post(id)
     
-    if updated_post == None:
+    post_query = db.query(models.Post).filter(models.Post.id == id)
+    
+    post = post_query.first()
+    
+    if post == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f'Post with id {id} does not exist')
+
+    #Update query. can hard code title, content 
+    #post_query.update({'title': 'hey this is my updated title',
+                    #   'content': 'this is my updated content'}, synchronize_session=False)
+    post_query.update(updated_post.dict(), synchronize_session=False)
+    db.commit()
 
     #if does, take all data received from front, converts to dict
     #post_dict = post.dict()
@@ -169,8 +186,9 @@ def update_post(id: int, post: Post):
     
     # replaces dict with given id 
     #my_posts[index] = post_dict
-    return {"data": updated_post}
+    return {"data": post_query.first()}
 
+"""
 #Test
 @app.get("/sqlalchemy")
 def test_posts(db: Session = Depends(get_db)):
@@ -180,6 +198,7 @@ def test_posts(db: Session = Depends(get_db)):
     posts = db.query(models.Post).all()
     
     return {"datas": posts}
+    """
     
 
 #Practice with postgres and SQL
