@@ -17,10 +17,10 @@ class PostBase(BaseModel):
     title: str 
     content: str 
     published: bool = True 
-    id: int 
     
 class PostCreate(PostBase):
     pass 
+    
 
 # Class for sending response back to user 
 class Post(BaseModel):
