@@ -27,3 +27,4 @@ class Post(Base):
     """ sqlalchemy (ORM) model responsible for defining the columns of our posts table 
     within postgres
     used to query, create, delete, and update entries within database"""
+    

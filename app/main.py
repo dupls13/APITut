@@ -25,9 +25,9 @@ models.Base.metadata.create_all(bind=engine)
     finally: 
         db.close()"""
         # Moved to database.py
-"""
+
 # Define what a Post should look like
-class Post(BaseModel):
+"""class Post(BaseModel):
     # User pydantic to see what type of data we want 
     # also restricts what will be sent (str, int...), validation
     title: str
@@ -35,8 +35,8 @@ class Post(BaseModel):
     # Defaults user entry
     published: bool = True
     # Allows user to add nothing 
-    id = int 
-"""
+    id = int """
+
 # Code to connect to database 
 while True:
     try:
@@ -88,7 +88,7 @@ def get_posts(db: Session = Depends(get_db)):
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
 # defining dictionary to be sent
-def create_posts(post:schemas.PostCreate, db: Session = Depends(get_db)):  
+def create_posts(post:schemas.Post, db: Session = Depends(get_db)):  
     # SQL connection to creating posts 
     # %s prevent SQL injections, they are just placeholders, values are put in after 
     #cursor.execute("""INSERT INTO posts (title, content, published) VALUES (%s, %s, %s) RETURNING * 
