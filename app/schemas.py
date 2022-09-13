@@ -1,4 +1,5 @@
 from pydantic import BaseModel 
+from datetime import datetime
 
 # Moved from main
 
@@ -23,11 +24,12 @@ class PostCreate(PostBase):
     
 
 # Class for sending response back to user 
-class Post(BaseModel):
-    title: str 
-    content: str 
-    published: bool 
+class Post(PostBase):
+    created_at: datetime
     
+    #Need to add this after adding to path response_model
+    #pydantic has to change from sqlalchemy model back to pydantic model
+    #when returning back to user 
     class Config: 
         orm_mode = True
     
