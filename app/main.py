@@ -2,20 +2,20 @@ import pwd
 from fastapi import FastAPI, Response, status, HTTPException, Depends
 from fastapi.params import Body 
 from pydantic import BaseModel 
-from passlib.context import CryptContext
+#from passlib.context import CryptContext
 from typing import Optional, List
 from random import randrange
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import time 
 from sqlalchemy.orm import Session
-from . import models, schemas
+from . import models, schemas, utils
 from .database import engine, get_db
 
 app = FastAPI()
 
 #Hashing for paswords
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+#pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 #connect model
@@ -216,7 +216,8 @@ def test_posts(db: Session = Depends(get_db)):
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     
     #Create hash of password - user.password 
-    hashed_password =pwd_context.hash(user.password)
+    #hashed_password =pwd_context.hash(user.password)
+    hashed_password = utils.hash(user.password)
     user.password = hashed_password
     
     new_user = models.User(**user.dict())
