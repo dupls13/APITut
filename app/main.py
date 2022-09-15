@@ -1,6 +1,8 @@
+import pwd
 from fastapi import FastAPI, Response, status, HTTPException, Depends
 from fastapi.params import Body 
 from pydantic import BaseModel 
+from passlib.context import CryptContext
 from typing import Optional, List
 from random import randrange
 import psycopg2
@@ -11,6 +13,9 @@ from . import models, schemas
 from .database import engine, get_db
 
 app = FastAPI()
+
+#Hashing for paswords
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 #connect model
@@ -203,3 +208,20 @@ def test_posts(db: Session = Depends(get_db)):
     
 
 #Practice with postgres and SQL
+
+
+
+# Create users
+@app.post("/users", status_code=status.HTTP_201_CREATED, response_model = schemas.UserOut)
+def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    
+    #Create hash of password - user.password 
+    hashed_password =pwd_context.hash(user.password)
+    user.password = hashed_password
+    
+    new_user = models.User(**user.dict())
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    
+    return new_user
