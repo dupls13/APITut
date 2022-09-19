@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from typing import List 
 from ..database import get_db 
-from .. import models, schemas
+from .. import models, schemas, oauth2
 
 
 router = APIRouter(
@@ -12,9 +12,10 @@ router = APIRouter(
 )
 
 
+#Added requirement for confirming user is logged in 
 
 @router.get("/", response_model=List[schemas.Post])
-def get_posts(db: Session = Depends(get_db)):
+def get_posts(db: Session = Depends(get_db),user_id: int = Depends(oauth2.get_current_user)):
     # Getting posts from DB
     #posts = cursor.execute(""" SELECT * FROM posts """)
     #posts = cursor.fetchall()
@@ -22,8 +23,8 @@ def get_posts(db: Session = Depends(get_db)):
     return posts
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.Post)
-# defining dictionary to be sent
-def create_posts(post:schemas.PostCreate, db: Session = Depends(get_db)):  
+# defining dictionary to be sent #New function is dependency, user must be logged in to create post 
+def create_posts(post:schemas.PostCreate, db: Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):  
     # SQL connection to creating posts 
     # %s prevent SQL injections, they are just placeholders, values are put in after 
     #cursor.execute("""INSERT INTO posts (title, content, published) VALUES (%s, %s, %s) RETURNING * 
@@ -34,6 +35,7 @@ def create_posts(post:schemas.PostCreate, db: Session = Depends(get_db)):
     #conn.commit()
     
     # Add ** to fill in fields automatically (title, content, etc)
+    print(user_id)
     new_post = models.Post(**post.dict())
     db.add(new_post)
     db.commit()
@@ -46,7 +48,7 @@ def create_posts(post:schemas.PostCreate, db: Session = Depends(get_db)):
 # Get the post you want
 # id is path parameter, links to specific post 
 @router.get("/{id}", response_model=schemas.Post)    
-def get_post(id: int, db: Session = Depends(get_db)):
+def get_post(id: int, db: Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):
     #Fetching specific post. Need to convert int back to string , sometimes need extra comma 
     #cursor.execute(""" SELECT * FROM posts WHERE id = %s """, (str(id),))
     #post = cursor.fetchone()
@@ -62,7 +64,7 @@ def get_post(id: int, db: Session = Depends(get_db)):
     return post
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_post(id: int, db:Session = Depends(get_db)):
+def delete_post(id: int, db:Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):
     # logic for deleting post 
     # find the index in the array that has required ID
     # my_posts.pop(index)
@@ -85,7 +87,7 @@ def delete_post(id: int, db:Session = Depends(get_db)):
 
 
 @router.put("/{id}", response_model=schemas.Post)
-def update_post(id: int, updated_post: schemas.PostCreate, db:Session = Depends(get_db)):
+def update_post(id: int, updated_post: schemas.PostCreate, db:Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):
  #   cursor.execute(""" UPDATE posts SET title = %s, content = %s, published = %s WHERE id = %s RETURNING *""",
   #                 (post.title, post.content, post.published, str(id),))
     
