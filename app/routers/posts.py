@@ -15,7 +15,7 @@ router = APIRouter(
 #Added requirement for confirming user is logged in 
 
 @router.get("/", response_model=List[schemas.Post])
-def get_posts(db: Session = Depends(get_db),user_id: int = Depends(oauth2.get_current_user)):
+def get_posts(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     # Getting posts from DB
     #posts = cursor.execute(""" SELECT * FROM posts """)
     #posts = cursor.fetchall()
@@ -24,7 +24,7 @@ def get_posts(db: Session = Depends(get_db),user_id: int = Depends(oauth2.get_cu
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.Post)
 # defining dictionary to be sent #New function is dependency, user must be logged in to create post 
-def create_posts(post:schemas.PostCreate, db: Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):  
+def create_posts(post:schemas.PostCreate, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):  
     # SQL connection to creating posts 
     # %s prevent SQL injections, they are just placeholders, values are put in after 
     #cursor.execute("""INSERT INTO posts (title, content, published) VALUES (%s, %s, %s) RETURNING * 
@@ -35,7 +35,6 @@ def create_posts(post:schemas.PostCreate, db: Session = Depends(get_db), user_id
     #conn.commit()
     
     # Add ** to fill in fields automatically (title, content, etc)
-    print(user_id)
     new_post = models.Post(**post.dict())
     db.add(new_post)
     db.commit()
@@ -48,7 +47,7 @@ def create_posts(post:schemas.PostCreate, db: Session = Depends(get_db), user_id
 # Get the post you want
 # id is path parameter, links to specific post 
 @router.get("/{id}", response_model=schemas.Post)    
-def get_post(id: int, db: Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):
+def get_post(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     #Fetching specific post. Need to convert int back to string , sometimes need extra comma 
     #cursor.execute(""" SELECT * FROM posts WHERE id = %s """, (str(id),))
     #post = cursor.fetchone()
@@ -64,7 +63,7 @@ def get_post(id: int, db: Session = Depends(get_db), user_id: int = Depends(oaut
     return post
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_post(id: int, db:Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):
+def delete_post(id: int, db:Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     # logic for deleting post 
     # find the index in the array that has required ID
     # my_posts.pop(index)
