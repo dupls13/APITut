@@ -27,7 +27,11 @@ class PostCreate(PostBase):
 
 # Class for sending response back to user 
 class Post(PostBase):
+    id:int
     created_at: datetime
+    #Get user id 
+    owner_id: int 
+    
     
     #Need to add this after adding to path response_model
     #pydantic has to change from sqlalchemy model back to pydantic model

@@ -34,8 +34,12 @@ def create_posts(post:schemas.PostCreate, db: Session = Depends(get_db), current
     # Need to commit to table 
     #conn.commit()
     
+    
+    #After adding foreign key, need to automatically get user when creating new post 
+    #owner_user.id
+    
     # Add ** to fill in fields automatically (title, content, etc)
-    new_post = models.Post(**post.dict())
+    new_post = models.Post(owner_id = current_user.id, **post.dict())
     db.add(new_post)
     db.commit()
     db.refresh(new_post)
