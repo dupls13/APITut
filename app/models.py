@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.sql.sqltypes import TIMESTAMP
 from sqlalchemy.sql.expression import text 
 from .database import Base 
+from sqlalchemy.orm import relationship 
 # used to connect to DB
 
 
@@ -22,6 +23,9 @@ class Post(Base):
     #contraint of SQLalchemy: doesn't help modify tables 
     
     
+    #Create relationship (creates new property to return User)
+    owner = relationship("User")
+    
     """Schema/pydantic models define the structure of a request and response 
     ensure that when a use want to create a post, the request will only go through 
     if it has a title and content in body"""
@@ -37,3 +41,5 @@ class User(Base):
     password = Column(String, nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default = text('now()'))
     
+
+

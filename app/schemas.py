@@ -25,19 +25,6 @@ class PostCreate(PostBase):
     pass 
     
 
-# Class for sending response back to user 
-class Post(PostBase):
-    id:int
-    created_at: datetime
-    #Get user id 
-    owner_id: int 
-    
-    
-    #Need to add this after adding to path response_model
-    #pydantic has to change from sqlalchemy model back to pydantic model
-    #when returning back to user 
-    class Config: 
-        orm_mode = True
     
 #User class 
 class UserCreate(BaseModel):
@@ -63,3 +50,22 @@ class Token(BaseModel):
     
 class TokenData(BaseModel):
     id: Optional[str] = None 
+    
+    
+
+# Class for sending response back to user 
+#Setup up to also return owner information from post 
+class Post(PostBase):
+    id:int
+    created_at: datetime
+    #Get user id 
+    owner_id: int 
+    owner: UserOut
+    
+    
+    #Need to add this after adding to path response_model
+    #pydantic has to change from sqlalchemy model back to pydantic model
+    #when returning back to user 
+    class Config: 
+        orm_mode = True
+    
