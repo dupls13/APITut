@@ -20,6 +20,10 @@ def get_posts(db: Session = Depends(get_db), current_user: int = Depends(oauth2.
     #posts = cursor.execute(""" SELECT * FROM posts """)
     #posts = cursor.fetchall()
     posts = db.query(models.Post).all()
+    
+    #if only want posts that belong to specific user
+    posts = db.query(models.Post).filter(models.Post.owner_id == current_user.id).all()
+    
     return posts
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.Post)
