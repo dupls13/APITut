@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, conint
 from datetime import datetime
 from typing import Optional
 
@@ -68,4 +68,8 @@ class Post(PostBase):
     #when returning back to user 
     class Config: 
         orm_mode = True
-    
+
+
+class Vote(BaseModel): 
+    post_id: int 
+    dir: conint(le=1)
