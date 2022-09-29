@@ -1,18 +1,21 @@
 import pwd
 from fastapi import FastAPI, Response, status, HTTPException, Depends
-from fastapi.params import Body 
-from pydantic import BaseModel 
-#from passlib.context import CryptContext
-from typing import Optional, List
-from random import randrange
-import psycopg2
-from psycopg2.extras import RealDictCursor
-import time 
-from sqlalchemy.orm import Session
-from . import models, schemas, utils
-from .database import engine, get_db
-
+from . import models
+from .database import engine
+from pydantic import BaseSettings
+from .config import Settings 
 from .routers import posts, users, auth
+
+
+"""
+#Environment variable 
+class Settings(BaseSettings):
+    database_password: str 
+    database_username: str = 'postgres'
+    secret_key: str = 'hr893yhu724q'
+
+settings = Settings()
+"""
 
 app = FastAPI()
 
@@ -44,6 +47,7 @@ models.Base.metadata.create_all(bind=engine)
     # Allows user to add nothing 
     id = int """
 
+"""
 # Code to connect to database 
 while True:
     try:
@@ -58,12 +62,12 @@ while True:
         print("Connecting to database failed")
         print("Error: ", error)
         time.sleep(2)
-
+"""
 #Create open dictionary to grab
-my_posts = [{"title":"title of post 1", "content":"content of post 1", "id": 1},
-            {"title":"favorite foods", "content": "I like pizza", "id":2}]
+#my_posts = [{"title":"title of post 1", "content":"content of post 1", "id": 1},
+ #           {"title":"favorite foods", "content": "I like pizza", "id":2}]
 
-
+""""
 def find_post(id):
     for p in my_posts:
         if p["id"] == id:
@@ -73,7 +77,7 @@ def find_index_post(id):
     for i, p in enumerate(my_posts):
         if p['id']== id:
             return i 
-
+"""
 
 # moved paths to routers
 app.include_router(posts.router)
