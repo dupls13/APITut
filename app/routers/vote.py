@@ -41,7 +41,7 @@ def vote(vote: schemas.Vote, db:Session = Depends(database.get_db), current_user
             raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
                                 detail=f"User {current_user.id} has not voted on post {vote.post_id}")
         
-        vote_query.delete(synchronize_session= False)
+        found_vote.delete(synchronize_session= False)
         db.commit()
         return {"message": "Successfully deleted vote"}
         
