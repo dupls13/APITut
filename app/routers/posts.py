@@ -15,6 +15,7 @@ router = APIRouter(
 #Added requirement for confirming user is logged in 
 # Added user limit to recieving certain number of posts 
 # Added skip option
+# Added search in title 
 
 @router.get("/", response_model=List[schemas.Post])
 def get_posts(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user),
