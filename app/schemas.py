@@ -69,6 +69,16 @@ class Post(PostBase):
     class Config: 
         orm_mode = True
 
+#New schema for adding votes 
+class PostOut(BaseModel):
+    Post: Post
+    votes: int 
+    
+    class Config:
+        orm_mode = True
+    
+    
+
 
 class Vote(BaseModel): 
     post_id: int 

@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Response, status, HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from typing import List, Optional
 from ..database import get_db 
@@ -17,17 +18,26 @@ router = APIRouter(
 # Added skip option
 # Added search in title 
 
-@router.get("/", response_model=List[schemas.Post])
+#@router.get("/", response_model=List[schemas.Post])
+@router.get("/", response_model=List[schemas.PostOut])
 def get_posts(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user),
               limit: int = 10, skip: int = 0, search: Optional[str] = ''):
     # Getting posts from DB
     #posts = cursor.execute(""" SELECT * FROM posts """)
     #posts = cursor.fetchall()
-    print(limit)
-    posts = db.query(models.Post).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()
+    
+    
+    #From adding search features
+    #print(limit)
+    #posts = db.query(models.Post).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()
     
     #if only want posts that belong to specific user, rather than all posts ever
     #posts = db.query(models.Post).filter(models.Post.owner_id == current_user.id).all()
+    
+    #Combine votes and posts (SQL command for left join)
+    posts = db.query(models.Post, func.count(models.Votes.post_id).label("votes")).join(
+        models.Votes, models.Votes.post_id == models.Post.id, isouter=True).group_by(
+            models.Post.id).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()
     
     return posts
 
