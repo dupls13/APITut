@@ -6,6 +6,9 @@ from sqlalchemy.orm import relationship
 # used to connect to DB
 
 
+#Limitation of sqlalchemy: If updating table with new column, new column will not show up unless drop table first 
+#Need to add database migration tool 
+
 #Defines what table will look like 
 # Create class for posts, extends to base 
 class Post(Base):
