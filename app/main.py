@@ -6,6 +6,9 @@ from pydantic import BaseSettings
 from .config import Settings 
 from .routers import posts, users, auth, vote
 
+#Add CORS
+from fastapi.middleware.cors import CORSMiddleware
+
 
 """
 #Environment variable 
@@ -19,12 +22,24 @@ settings = Settings()
 #Start fastapi
 app = FastAPI()
 
+origins = ["*"]
+
+#Added for cors 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 #Hashing for paswords
 #pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 #connect model
-models.Base.metadata.create_all(bind=engine)
+#Dont need anymore since have alembic 
+# models.Base.metadata.create_all(bind=engine)
 # After engine added, need to change path operation functions
 
 # Create dependency for model , Gets session for db, talk to it 
