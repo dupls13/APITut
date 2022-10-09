@@ -16,7 +16,7 @@ class Settings(BaseSettings):
 
 settings = Settings()
 """
-
+#Start fastapi
 app = FastAPI()
 
 #Hashing for paswords
